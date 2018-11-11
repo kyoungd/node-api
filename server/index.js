@@ -10,8 +10,8 @@ else if (env == 'test') {
   process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'
 }
 
-const { bankaccount } = require('./models/setup');
-bankaccount ().then(()=> {
+const { all } = require('./models/setup');
+all ().then(()=> {
   console.log('setup complete');
 });
 
