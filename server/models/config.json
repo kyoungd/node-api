@@ -1,0 +1,11 @@
+{
+    "default" :
+    {
+        "root": "/root",
+        "productExcerpt": "UNDER CONSTRUCTION",
+        "productHtml": "UNDER CONSTRUCTION",
+        "productApprovalStatus": "NOT_SUBMITTED",
+        "productStatus": "NOT_STARTED",
+        "productVideo": "UNDER CONSTRUCTION"
+    }
+}

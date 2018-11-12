@@ -2,44 +2,44 @@ const { ObjectId } = require('mongodb');
 const expect = require('chai').expect;
 const request = require('supertest');
 
-const { app } = require('../server/server');
-const { Todo } = require('../server/models/todo');
+const { app } = require('../server/index');
+const { entityId, entityPrefix } = require('../server/models/setup-helper');
 
-describe('POST /todos', ()=> {
+describe('Test donations', ()=> {
 
-  const todos = [
-    {_id: new ObjectId(), text: 'first item on the collection.', completed: false, completedAt: new Date().getTime()},
-    {_id: new ObjectId(), text: 'second item on the collection.', completed: false, completedAt: new Date().getTime()}
-  ];
-
-  beforeEach((done)=> {
-    Todo.remove({}).then(()=> {
-      return Todo.insertMany(todos);
-    })
-    .then(()=> done());
-  });
-
-  it('should create a new todo POSt', (done)=> {
-    var text = 'Test todo test';
+  it('should return donation list', (done)=> {
+    let jsondata;
     request(app)
-      .post('/todos')
-      .send({text: text})
+      .get('/api/donation')
       .expect(200)
       .expect((res)=> {
-        expect(res.body.text).to.equal(text);
+        jsondata = res.text;
+        let result = JSON.parse(jsondata);
+        console.log(JSON.stringify(result, null, 4));
+        expect(result).to.have.lengthOf(2);
       })
-//      .end(done);
       .end((err, res)=> {
         if (err)
           return done(err);
-        Todo.find({text}).then((todos)=> {
-          expect(todos).to.have.lengthOf(1);
-          expect(todos[0].text).to.equal(text);
-          done();
-        }).
-        catch((err) => done(err));
+        done();
       });
   })
+
+  it('should return a donation-product list ', (done) => {
+    const donationId = entityId(entityPrefix('donation'), 2);
+    request(app)
+      .get(`/api/donation/${donationId}`)
+      .expect(200)
+      .expect((res)=> {
+        jsondata = res.text;
+        let result = JSON.parse(jsondata);
+        console.log(JSON.stringify(result, null, 4));
+        expect(result.data).to.have.lengthOf(4);
+      })
+      .end(done);
+  })
+
+/* ----
 
   it('should not create a new todo with invalid POST', (done)=>{
     request(app)
@@ -196,5 +196,7 @@ describe('POST /todos', ()=> {
     })
 
   });
+
+---------------------------------- */
 
 });

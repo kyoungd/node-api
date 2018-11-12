@@ -22,15 +22,21 @@ console.log('>>>>>>>>>>>>>>>>>>>>>>', env);
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const { ApiRoot } = require('./models/api-root');
+const { ApiRootDonation } = require('./models/api-root-donations');
 
 var app = express();
 app.use(bodyParser.json());
 
-app.get('/api/donations', (req, res) => {
+app.get('/api/donation', async (req, res) => {
+  const result = await ApiRoot();
+  res.status(200).send(JSON.stringify(result));
 })
 
-app.get('/api/donation/:donationId/', (req, res) => {
+app.get('/api/donation/:donationId/', async (req, res) => {
   var donationId = req.params.donationId;
+  const result = await ApiRootDonation(donationId);
+  res.status(200).send(JSON.stringify(result));
 })
 
 app.get('/api/donation/:donationId/products/', (req, res) => {

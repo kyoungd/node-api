@@ -8,7 +8,7 @@ const get = async(model, ix) => {
         return result;
     }
     catch (err) {
-        console.log(url(model));
+        console.log(url(model, ix));
         console.log(err);
     }
 }
@@ -25,4 +25,6 @@ const post = async (model, data) => {
     }
 }
 
-module.exports = { get, post }
+const getResourceId = (rid) => rid.split('#')[1];
+
+module.exports = { get, post, getResourceId }
