@@ -32,9 +32,9 @@ const entityId = (prefix, ix) => entityPrefix(prefix) + "-6ee91abf-d094-49e1-938
 const refModel = (model, ix, mtype) => {
     switch(model) {
         case 'bankaccount': return `resource:org.acme.smartdonation.util.BankAccount#${bankAccountId(bankAccountIndex(mtype) - 1 + (ix ? ix : 1))}`;
-        case 'donor': return `resource:org.acme.smartdonation.participant.Donor#${entityId('d')}`;
-        case 'customer': return `resource:org.acme.smartdonation.participant.Customer#${entityId('c')}`;
-        case 'supplier': return `resource:org.acme.smartdonation.participant.Supplier#${entityId('s')}`;
+        case 'donor': return `resource:org.acme.smartdonation.participant.Donor#${entityId('d', ix)}`;
+        case 'customer': return `resource:org.acme.smartdonation.participant.Customer#${entityId('c', ix)}`;
+        case 'supplier': return `resource:org.acme.smartdonation.participant.Supplier#${entityId('s', ix)}`;
         case 'donation': return `resource:org.acme.smartdonation.object.Donation#${entityId('t', ix)}`;
         case 'campaign': return `resource:org.acme.smartdonation.object.Campaign#${entityId('a', ix)}`;
         case 'campaignrequest': return `resource:org.acme.smartdonation.object.CampaignRequest#${entityId('r', ix)}`;

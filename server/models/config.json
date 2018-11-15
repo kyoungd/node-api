@@ -6,6 +6,10 @@
         "productHtml": "UNDER CONSTRUCTION",
         "productApprovalStatus": "NOT_SUBMITTED",
         "productStatus": "NOT_STARTED",
-        "productVideo": "UNDER CONSTRUCTION"
+        "productVideo": "UNDER CONSTRUCTION",
+        "endpointBlockchainApi" : "http://localhost:3000/api",
+        "pageDonorRoot": "/",
+        "pageDonorDonation": "/root-donation",
+        "pageDonorProduct": "/root-post"
     }
 }

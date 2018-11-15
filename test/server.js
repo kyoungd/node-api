@@ -4,10 +4,15 @@ const request = require('supertest');
 
 const { app } = require('../server/index');
 const { entityId, entityPrefix } = require('../server/models/setup-helper');
+const { get } = require('../server/models/api');
+const { getDashboardDonorPost } = require('../server/models/api-data');
+const { ApiCampaign } = require('../server/models/api-customer-campaign');
+const { ApiCampaignRequest } = require('../server/models/api-customer-campaignrequest');
+const { ApiCampaignSupplier } = require('../server/models/api-customer-supplier');
 
 describe('Test donations', ()=> {
 
-  it('should return donation list', (done)=> {
+  it.skip('should return donation list', ()=> {
     let jsondata;
     request(app)
       .get('/api/donation')
@@ -25,7 +30,7 @@ describe('Test donations', ()=> {
       });
   })
 
-  it('should return a donation-product list ', (done) => {
+  it.skip('should return a donation-product list ', () => {
     const donationId = entityId(entityPrefix('donation'), 2);
     request(app)
       .get(`/api/donation/${donationId}`)
@@ -37,6 +42,44 @@ describe('Test donations', ()=> {
         expect(result.data).to.have.lengthOf(4);
       })
       .end(done);
+  })
+
+  it.skip('should return a product for approval', async () => {
+    const productId = entityId('product', 2);
+    const result = await get('product', productId);
+    const dashboard = getDashboardDonorPost(result);
+    expect(dashboard.status).to.equal('ACCEPTED');
+    expect(dashboard.id).to.equal(productId);
+    console.log(dashboard);
+  })
+
+  it.skip('should return a campaign root for review', async()=> {
+    const result = await ApiCampaign();
+    console.log(result);
+  })
+
+  it('should return a campaign request list campaign-1', async()=> {
+    const campaignId = entityId('campaign', 1);
+    const result = await ApiCampaignRequest(campaignId);
+    console.log(JSON.stringify(result, null, 4));
+  })
+
+  it('should return a campaign request list campaign-2', async()=> {
+    const campaignId = entityId('campaign', 2);
+    const result = await ApiCampaignRequest(campaignId);
+    console.log(JSON.stringify(result, null, 4));
+  })
+
+
+  it.skip('should return a new campaign supplier list for campaign', async()=> {
+    const result = await ApiCampaignSupplier();
+    expect(result[0].checked).to.equal(true);
+  })
+
+  it.skip('should return a campaign supplier list for campaign', async()=> {
+    const campaignId = entityId('campaign', 1);
+    const result = await ApiCampaignSupplier(campaignId);
+    expect(result[0].checked).to.equal(false);
   })
 
 /* ----

@@ -24,7 +24,7 @@ const bankaccount = async () => {
 }
 
 const participant = async () => {
-    if (!doexist('customer')) {
+    if (!(await doexist('customer'))) {
         const customerData = 
         {
             "$class": "org.acme.smartdonation.participant.Customer",
@@ -45,7 +45,7 @@ const participant = async () => {
         }
         await post('customer', customerData);
     }
-    if (!doexist('donor')) {
+    if (!(await doexist('donor'))) {
         const donorData =
         {
             "$class": "org.acme.smartdonation.participant.Donor",
@@ -68,12 +68,20 @@ const participant = async () => {
         }
         await post('donor', donorData);
     }
-    if (!doexist('supplier')) {
+    if (!(await doexist('supplier'))) {
+        const nameList = [
+            "Wiggly Wigglers", "Duke of Pork",
+            "Canary Dwarf", "Feelingpeaky",
+            "Smoke & Croak", "Yellobelly",
+            "Goldipots", "WoofBox",
+            "Cakes with Faces", "Sensible Dave",
+            "Adam Smith", "Carl Marx"
+        ];
         for (let ix=1; ix < 10; ++ix) {
             let supplier =
             {
                 "$class": "org.acme.smartdonation.participant.Supplier",
-                "name": "Bill Gates",
+                "name": `${nameList[ix]}`,
                 "participantId": entityId('s', ix),
                 "phoneNumber": "555-123-1234",
                 "email": "bill@microsoft.com",
@@ -184,8 +192,8 @@ const campaignrequest = async() => {
             "createdOn": "2016-11-10T19:05:41.130Z",
             "description": "In the plastic container, which is around the same size as a small box of photocopier paper, she has bottles of tonic water, coffee and French marmalade. Away from the kitchen, in a cupboard she has stored extra bottles of shampoo.",
             "name": "Factual Ad",
-            "requestStatus": "ACCEPTED",
-            "requestStatusReason": "OK",
+            "approvalStatus": "ACCEPTED",
+            "approvalStatusReason": "OK",
             "respondedOn": "2018-11-10T19:05:41.130Z",
             "status": "COMPLETE",
             "campaign": refModel('campaign', 1),
@@ -202,8 +210,8 @@ const campaignrequest = async() => {
             "createdOn": "2016-11-10T19:05:41.130Z",
             "description": "The idea that we might not be able to shop as normal in the immediate aftermath of Brexit seems ludicrous. When I asked on Twitter if anyone was putting aside goods, I was accused of scaremongering. What a ridiculous tweet, do people actually think were going back to the stone age immediately after Brexit? was one scathing response.",
             "name": "Postive and humorous Ad",
-            "requestStatus": "ACCEPTED",
-            "requestStatusReason": "OK",
+            "approvalStatus": "ACCEPTED",
+            "approvalStatusReason": "OK",
             "respondedOn": "2018-11-10T19:05:41.130Z",
             "status": "COMPLETE",
             "campaign": refModel('campaign', 2),
