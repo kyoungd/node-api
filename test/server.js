@@ -6,28 +6,19 @@ const { app } = require('../server/index');
 const { entityId, entityPrefix } = require('../server/models/setup-helper');
 const { get } = require('../server/models/api');
 const { getDashboardDonorPost } = require('../server/models/api-data');
-const { ApiCampaign } = require('../server/models/api-customer-campaign');
-const { ApiCampaignRequest } = require('../server/models/api-customer-campaignrequest');
+const { ApiCampaignList } = require('../server/models/api-customer-campaign');
+const { ApiCustomerCampaignRequest } = require('../server/models/api-customer-campaignrequest');
 const { ApiCampaignSupplier } = require('../server/models/api-customer-supplier');
+const { ApiCampaignDonation } = require('../server/models/api-customer-donation');
+const { ApiDonationList } = require('../server/models/api-donor-donation')
+
+const _ = require('lodash');
 
 describe('Test donations', ()=> {
 
-  it.skip('should return donation list', ()=> {
-    let jsondata;
-    request(app)
-      .get('/api/donation')
-      .expect(200)
-      .expect((res)=> {
-        jsondata = res.text;
-        let result = JSON.parse(jsondata);
-        console.log(JSON.stringify(result, null, 4));
-        expect(result).to.have.lengthOf(2);
-      })
-      .end((err, res)=> {
-        if (err)
-          return done(err);
-        done();
-      });
+  it('should return donation list', async ()=> {
+    const result = await ApiDonationList();
+    console.log(result);
   })
 
   it.skip('should return a donation-product list ', () => {
@@ -53,23 +44,36 @@ describe('Test donations', ()=> {
     console.log(dashboard);
   })
 
-  it.skip('should return a campaign root for review', async()=> {
-    const result = await ApiCampaign();
+  it('should return a campaign root for review', async()=> {
+    const result = await ApiCampaignList();
     console.log(result);
   })
 
-  it('should return a campaign request list campaign-1', async()=> {
+  it.skip('should return a campaign-root-donation for review', async()=> {
+    const result = await ApiCampaignDonation();
+    console.log(JSON.stringify(result, null, 4));
+  })
+
+  it.skip('should return a campaign request list campaign-1', async()=> {
     const campaignId = entityId('campaign', 1);
-    const result = await ApiCampaignRequest(campaignId);
-    console.log(JSON.stringify(result, null, 4));
+    const result = await ApiCustomerCampaignRequest(campaignId);
+//    console.log(JSON.stringify(result, null, 4));
   })
 
-  it('should return a campaign request list campaign-2', async()=> {
+  it.skip('should return a campaign request list campaign-2', async()=> {
     const campaignId = entityId('campaign', 2);
-    const result = await ApiCampaignRequest(campaignId);
-    console.log(JSON.stringify(result, null, 4));
+    const result = await ApiCustomerCampaignRequest(campaignId);
+//    console.log(JSON.stringify(result, null, 4));
   })
 
+  it.skip('should test object expansion with campaign-1 ', async() => {
+
+    const campaignId = entityId('campaign', 2);
+    const result = await ApiCustomerCampaignRequest(campaignId);
+
+    const item = {...result.data[0], title: 'hello there'};
+    console.log(item.title);
+  })
 
   it.skip('should return a new campaign supplier list for campaign', async()=> {
     const result = await ApiCampaignSupplier();
