@@ -18,7 +18,7 @@ const ApiCampaignBlank = {
   slug: '',
   editslug: '',
   clickslug: '',
-  donation: '',
+  donation: 'new',
 };
 
 const ApiCampaignList = async () => {

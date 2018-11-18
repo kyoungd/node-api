@@ -25,6 +25,31 @@ const post = async (model, data) => {
     }
 }
 
+const put = async(model, data, ix) => {
+  try {
+    const result = await axios.put(url(model, ix), data);
+    return result;
+  }
+  catch (err) {
+    console.log(url(model, data, ix));
+    console.log(err);
+  }
+}
+
+const remove = async(model, ix) => {
+  try {
+      const result = await axios.delete(url(model, ix));
+      return result;
+  }
+  catch (err) {
+      console.log(url(model, ix));
+      console.log(err);
+  }
+}
+
 const getResourceId = (rid) => rid.split('#')[1];
 
-module.exports = { get, post, getResourceId }
+const makeResourceId = (model, id) => 
+  id.includes("resource") ? id : "resource:" + endpoints[model].slice(1, endpoints[model].length) + "#" + id;
+
+module.exports = { get, post, put, remove, getResourceId, makeResourceId }

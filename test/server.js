@@ -4,23 +4,113 @@ const request = require('supertest');
 
 const { app } = require('../server/index');
 const { entityId, entityPrefix } = require('../server/models/setup-helper');
-const { get } = require('../server/models/api');
+const { get, remove } = require('../server/models/api');
 const { getDashboardDonorPost } = require('../server/models/api-data');
 const { ApiCampaignList } = require('../server/models/api-customer-campaign');
 const { ApiCustomerCampaignRequest } = require('../server/models/api-customer-campaignrequest');
 const { ApiCampaignSupplier } = require('../server/models/api-customer-supplier');
 const { ApiCampaignDonation } = require('../server/models/api-customer-donation');
-const { ApiDonationList } = require('../server/models/api-donor-donation')
+const { ApiDonationList } = require('../server/models/api-donor-donation');
+const { ApiSupplierRfpList } = require('../server/models/api-supplier-rfp');
+const { EntityStateDdl, ApprovalStateDonorDdl } = require('../server/models/api-data-status');
+const { SetBlockchain } = require('../server/models/api-post');
 
 const _ = require('lodash');
 
-describe('Test donations', ()=> {
+describe('Test basic functions', ()=> {
+  it.skip('test object', (done)=> {
+    var o1 = { food: 'pizza', car: 'ford', rules: ['low maintenance', 'high mileage', 'nice exterier'], engine: {size: '4 cylinder', fan: 'electric'} };
+    var o2 = { owner: 'james', car: 'toyota', rules: ['no maintenance', 'self driving'], engine: { size: 'no cylinder', fan: 'none'}};
+    var test = {...o1, ...o2};
+    console.log(test);
+    done();
+  })
 
-  it('should return donation list', async ()=> {
-    const result = await ApiDonationList();
+  it.skip('bank put test', async()=> {
+    const model = 'bankaccount'
+    const data1 = {
+      "entityId": "BANKACCOUNT03",
+      "accountNumber": "10000-00000000-03",
+      "routingNumber": "20000-00000000-03",
+      "status": "ACTIVE",
+      "note": "test"
+    }
+    const item1 = await SetBlockchain(model, data1);
+    expect(item1.data.status).to.equal('ACTIVE');
+    expect(item1.data.accountNumber).to.equal('10000-00000000-03');
+    const data2 = {
+      "entityId": "BANKACCOUNT01",
+      "accountNumber": "10000-00000000-0X",
+      "routingNumber": "20000-00000000-0X",
+      "note": "test",
+      "status": "COMPLETE"
+    }
+    const item2 = await SetBlockchain(model, data2);
+    expect(item2.data.status).to.equal('COMPLETE');
+    expect(item2.data.accountNumber).to.equal('10000-00000000-0X');
+  })
+
+  it('donation new test', async() => {
+    const model = 'donation';
+    const donor = entityId('donor', 1);
+    const customer = entityId('customer', 1);
+    const bankAccount = 'BANKACCOUNT01';
+    await remove('donation', 'DONATION-TEST-ID-04')
+    const data1 = {
+      "id": "DONATION-TEST-ID-04",
+      "entityId": "DONATION-TEST-ID-04",
+      "title": "Just the facts, Maam",
+      "name": "Arthur Dent",
+      "description": "Proposing to restore the state’s commitment to fund two-thirds of public school costs, matching a plan by his Democratic opponent, State Superintendent Tony Evers.",
+      "rules": [
+        "Universe is big.  Really really big.",
+        "focus on the candidate",
+        "candidates accomplishments"
+      ],
+      "amount": 5000000,
+      "status": "ACTIVE",
+      "total": 4,
+      "accepted": 4,
+      "rejected": 0,
+      "waiting": 0,
+      "slug": "/root",
+      "editslug": "",
+      "clickslug": "/root-sublevel?DONATION-TEST-ID-04",
+      bankAccount,
+      customer,
+      donor
+    }
+    let item1 = await SetBlockchain(model, data1);
+    expect(item1.data.status).to.equal('ACTIVE');
+    expect(item1.data.amount).to.equal(5000000);
+    let data2 = _.cloneDeep(item1.data);
+    data2.status = 'COMPLETE';
+    data2.amount = 2000000;
+    let item2 = await SetBlockchain(model, data2);
+    expect(item2.data.status).to.equal('COMPLETE');
+    expect(item2.data.amount).to.equal(2000000);
+  })
+
+  it('product update.  Will update approvalStatus and ApprovalResponse.', async()=> {
+    const model = 'product';
+    const data = {
+      "entityId": entityId('product', 1),
+      "approvalResponse": "FANTASTIC",
+      "approvalStatus": "ACCEPTED",
+    }
+    let item = await SetBlockchain(model, data);
+    expect(item.data.approvalResponse).to.equal('FANTASTIC');
+    expect(item.data.approvalStatus).to.equal('ACCEPTED');
+  })
+  
+  it.only('should return donation list', async ()=> {
+    const result = await ApiDonationList(entityId('customer'), entityId('donor'));
     console.log(result);
   })
 
+})
+
+describe.skip('Test donations', ()=> {
   it.skip('should return a donation-product list ', () => {
     const donationId = entityId(entityPrefix('donation'), 2);
     request(app)
@@ -84,7 +174,28 @@ describe('Test donations', ()=> {
     const campaignId = entityId('campaign', 1);
     const result = await ApiCampaignSupplier(campaignId);
     expect(result[0].checked).to.equal(false);
-  })
+  });
+
+  it('should get supplier rfps', async()=> {
+    const supplierId = entityId('supplier', 3);
+    const result = await ApiSupplierRfpList(supplierId);
+    console.log(result);
+  });
+
+  it('test approval Status', done => {
+    const approval1 = ApprovalStateDonorDdl('ACCEPTED');
+    expect(approval1[0].selected).to.equal(true);
+    const approval2 = ApprovalStateDonorDdl('REJECTED');
+    expect(approval2[1].selected).to.equal(true);
+    const approval3 = ApprovalStateDonorDdl('');
+    expect(approval3[0].selected).to.equal(false);
+    expect(approval3[1].selected).to.equal(false);
+    const state1 = EntityStateDdl('NOT_STARTED');
+    expect(state1[0].selected).to.equal(true);
+    const state2 = EntityStateDdl('ACTIVE');
+    expect(state2[1].selected).to.equal(true);
+    done();
+  });
 
 /* ----
 
