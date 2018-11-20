@@ -13,12 +13,14 @@ const { ApiCampaignDonation } = require('../server/models/api-customer-donation'
 const { ApiDonationList } = require('../server/models/api-donor-donation');
 const { ApiSupplierRfpList } = require('../server/models/api-supplier-rfp');
 const { EntityStateDdl, ApprovalStateDonorDdl } = require('../server/models/api-data-status');
-const { SetBlockchain } = require('../server/models/api-post');
+const { SetBlockchain, RunOpCode } = require('../server/models/api-post');
+const { ApiDonorPostList } = require('../server/models/api-donor-postlist');
 
 const _ = require('lodash');
 
 describe('Test basic functions', ()=> {
-  it.skip('test object', (done)=> {
+
+  it('test object', (done)=> {
     var o1 = { food: 'pizza', car: 'ford', rules: ['low maintenance', 'high mileage', 'nice exterier'], engine: {size: '4 cylinder', fan: 'electric'} };
     var o2 = { owner: 'james', car: 'toyota', rules: ['no maintenance', 'self driving'], engine: { size: 'no cylinder', fan: 'none'}};
     var test = {...o1, ...o2};
@@ -26,7 +28,20 @@ describe('Test basic functions', ()=> {
     done();
   })
 
-  it.skip('bank put test', async()=> {
+  it('bank post test', async()=> {
+    const model = 'bankaccount'
+    const data1 = {
+      "entityId": "new",
+      "accountNumber": "10000-00000000-03",
+      "routingNumber": "20000-00000000-03",
+    }
+    const item1 = await SetBlockchain(model, data1);
+    expect(item1.data.entityId).to.not.equal('new');
+    expect(item1.data.status).to.equal('ACTIVE');
+    expect(item1.data.accountNumber).to.equal('10000-00000000-03');
+  });
+
+  it('bank put test', async()=> {
     const model = 'bankaccount'
     const data1 = {
       "entityId": "BANKACCOUNT03",
@@ -103,29 +118,137 @@ describe('Test basic functions', ()=> {
     expect(item.data.approvalStatus).to.equal('ACCEPTED');
   })
   
-  it.only('should return donation list', async ()=> {
+  it('should return donation list', async ()=> {
     const result = await ApiDonationList(entityId('customer'), entityId('donor'));
     console.log(result);
   })
 
+  it('should return a donation-product list ', async() => {
+    const donationId = entityId('donation', 1);
+    const result = await ApiDonorPostList(donationId);
+    console.log(result);
+  })
+
+  it('api post update test', async() => {
+    const entityId = "p-6ee91abf-d094-49e1-9385-d3cbd84b54a901";
+    const newStatus = 'REJECTED';
+    const data = {entityId, approvalStatus: newStatus, approvalResponse: "yes"};
+    const result = await SetBlockchain('product', data);
+    expect(result.data.approvalStatus).to.equal(newStatus);
+    expect(result.data.approvalResponse).to.equal('yes');
+    console.log(result);
+  })
+
+  it('live donation data test', async() => {
+    const data = {
+      "id": "new",
+      "title": "Arthur D Dent",
+      "description": "test.",
+      "rules": [
+        "one",
+        " two",
+        " three",
+      ],
+      "amount": "1000000",
+      "expireOn": "2018-11-29",
+      "availbleOn": "",
+      "status": "NOT_STARTED",
+      "total": "",
+      "accepted": "",
+      "rejected": "",
+      "waiting": "",
+      "slug": "",
+      "editslug": "",
+      "clickslug": "",
+      "customer": "c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "donor": "d-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "availableOn": "2018-11-05",
+      "account": "1111111-1111-111111",
+      "routing": "111111-111111",
+      "expirationOn": "2018-11-29",
+      "name": "Arthur D Dent",
+      "entityId": "new",
+      "bankAccount": "77b65c80-ec32-11e8-b0a0-89e2b908152d"
+    }
+    //changed availableOn.
+    const result = await SetBlockchain('donation', data);
+    expect(result.data.status).to.equal('NOT_STARTED');
+    expect(result.data.amount).to.equal(1000000);
+    console.log(result);
+  })
+  
+  it('live campaign data test', async() => {
+    const donation = await get('donation', 't-6ee91abf-d094-49e1-9385-d3cbd84b54a902');
+    const data = {
+      "id": "new",
+      "title": "42 Campaign",
+      "description": "take a look",
+      "rules": "",
+      "amount": "1000000",
+      "expireOn": "2020-11-30",
+      "availbleOn": "",
+      "status": "NOT_STARTED",
+      "total": "",
+      "accepted": "",
+      "rejected": "",
+      "waiting": "",
+      "slug": "",
+      "editslug": "",
+      "clickslug": "",
+      "donation": "t-6ee91abf-d094-49e1-9385-d3cbd84b54a902",
+      "customer": "c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "availableOn": "2018-11-19",
+      "account": "1111111-1111-111111",
+      "routing": "111111-111111",
+      "name": "42 Campaign",
+      "entityId": "new",
+      "bankAccount": "74636e10-ec8c-11e8-b8e6-3dd63cd21a65",
+      "donor": donation.status === 200 ? donation.data.donor : '',
+    }    
+    const result = await SetBlockchain('campaign', data);
+    expect(result.data.status).to.equal('NOT_STARTED');
+    expect(result.data.amount).to.equal(1000000);
+    console.log(result);
+  })
+
+  it.only ('live campiagn new data test', async() => {
+    const data = {
+      "id": "new",
+      "title": "44 rules",
+      "description": "is this the best that the God can do?",
+      "rules": "",
+      "amount": "1000000",
+      "expireOn": "2018-11-30",
+      "availbleOn": "",
+      "status": "NOT_STARTED",
+      "total": "",
+      "accepted": "",
+      "rejected": "",
+      "waiting": "",
+      "slug": "",
+      "editslug": "",
+      "clickslug": "",
+      "donation": "t-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      "customer": "c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "availableOn": "2018-11-01",
+      "account": "1111111-1111-111111",
+      "routing": "111111-111111",
+      "name": "44 rules",
+      "entityId": "new",
+      "bankAccount": "12e530a0-eca1-11e8-baf7-9d7d3bad26e2",
+      "donor": "resource:org.acme.smartdonation.participant.Donor#d-6ee91abf-d094-49e1-9385-d3cbd84b54a9"
+    }
+    const result = await SetBlockchain('campaign', data);
+    expect(result.data.status).to.equal('NOT_STARTED');
+    expect(result.data.amount).to.equal(1000000);
+    console.log(result);
+  });
+
 })
 
 describe.skip('Test donations', ()=> {
-  it.skip('should return a donation-product list ', () => {
-    const donationId = entityId(entityPrefix('donation'), 2);
-    request(app)
-      .get(`/api/donation/${donationId}`)
-      .expect(200)
-      .expect((res)=> {
-        jsondata = res.text;
-        let result = JSON.parse(jsondata);
-        console.log(JSON.stringify(result, null, 4));
-        expect(result.data).to.have.lengthOf(4);
-      })
-      .end(done);
-  })
 
-  it.skip('should return a product for approval', async () => {
+  it('should return a product for approval', async () => {
     const productId = entityId('product', 2);
     const result = await get('product', productId);
     const dashboard = getDashboardDonorPost(result);
@@ -139,24 +262,24 @@ describe.skip('Test donations', ()=> {
     console.log(result);
   })
 
-  it.skip('should return a campaign-root-donation for review', async()=> {
+  it('should return a campaign-root-donation for review', async()=> {
     const result = await ApiCampaignDonation();
     console.log(JSON.stringify(result, null, 4));
   })
 
-  it.skip('should return a campaign request list campaign-1', async()=> {
+  it('should return a campaign request list campaign-1', async()=> {
     const campaignId = entityId('campaign', 1);
     const result = await ApiCustomerCampaignRequest(campaignId);
 //    console.log(JSON.stringify(result, null, 4));
   })
 
-  it.skip('should return a campaign request list campaign-2', async()=> {
+  it('should return a campaign request list campaign-2', async()=> {
     const campaignId = entityId('campaign', 2);
     const result = await ApiCustomerCampaignRequest(campaignId);
 //    console.log(JSON.stringify(result, null, 4));
   })
 
-  it.skip('should test object expansion with campaign-1 ', async() => {
+  it('should test object expansion with campaign-1 ', async() => {
 
     const campaignId = entityId('campaign', 2);
     const result = await ApiCustomerCampaignRequest(campaignId);
@@ -165,12 +288,12 @@ describe.skip('Test donations', ()=> {
     console.log(item.title);
   })
 
-  it.skip('should return a new campaign supplier list for campaign', async()=> {
+  it('should return a new campaign supplier list for campaign', async()=> {
     const result = await ApiCampaignSupplier();
     expect(result[0].checked).to.equal(true);
   })
 
-  it.skip('should return a campaign supplier list for campaign', async()=> {
+  it('should return a campaign supplier list for campaign', async()=> {
     const campaignId = entityId('campaign', 1);
     const result = await ApiCampaignSupplier(campaignId);
     expect(result[0].checked).to.equal(false);

@@ -27,6 +27,13 @@ const ApiDonorPostList = async (donationId) => {
             editslug,
             clickslug,
             video: (isProduct ? product[0].video : config.default.video),
+            product: (isProduct ? product[0].entityId: 'new'),
+            customer: request.customer,
+            campaign: request.campaign,
+            campaignRequest: request.entityId,
+            donor: request.donor,
+            donation: request.donation,
+            supplier: (isProduct ? product[0].supplier : ''),
         }
         return result;
     });
