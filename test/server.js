@@ -7,7 +7,7 @@ const { entityId, entityPrefix } = require('../server/models/setup-helper');
 const { get, remove } = require('../server/models/api');
 const { getDashboardDonorPost } = require('../server/models/api-data');
 const { ApiCampaignList } = require('../server/models/api-customer-campaign');
-const { ApiCustomerCampaignRequest } = require('../server/models/api-customer-campaignrequest');
+const { ApiCustomerCampaignRequest, ListSupplier } = require('../server/models/api-customer-campaignrequest');
 const { ApiCampaignSupplier } = require('../server/models/api-customer-supplier');
 const { ApiCampaignDonation } = require('../server/models/api-customer-donation');
 const { ApiDonationList } = require('../server/models/api-donor-donation');
@@ -211,7 +211,7 @@ describe('Test basic functions', ()=> {
     console.log(result);
   })
 
-  it.only ('live campiagn new data test', async() => {
+  it ('live campiagn new data test', async() => {
     const data = {
       "id": "new",
       "title": "44 rules",
@@ -244,6 +244,13 @@ describe('Test basic functions', ()=> {
     console.log(result);
   });
 
+  it.only ('check campaignrequest new data test', async() => {
+    const campaignId = entityId('campaign', 1);
+    const result = await ApiCustomerCampaignRequest(campaignId);
+    const supplier = ListSupplier(result.data, result.allSupplier, result.data[1]);
+    expect(supplier[0].checked).to.equal(true);
+    expect(supplier[1].selected).to.equal(true);
+  })
 })
 
 describe.skip('Test donations', ()=> {

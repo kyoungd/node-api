@@ -2,67 +2,34 @@ const _ = require('lodash');
 const { get, getResourceId } = require('./api');
 const config = require('./config');
 
-const EmptySublevelItem = async (campaignId) => {
-    const allRequests = await get('campaignrequest');
-    const allRequest = allRequests.data.filter(rq => getResourceId(rq.campaign) == campaignId);
-    const allSupplier = await get('supplier');
-    const listSupplier = allSupplier.data.map(supplier => {
-        const checkResult = allRequest.reduce((total, req) => 
-            getResourceId(req.supplier) === supplier.participantId 
-            && !_.includes(['CANCELED', 'REJECTED'], supplier.approvalStatus) ? total+1 : total, 0)
-        const checked = checkResult > 0 ? true : false;
-        const result = {
-            id: supplier.participantId,
-            name: supplier.name,
-            checked,
-            description: supplier.note,
-            selected: false,
-        }
-        return result;
-    });
+const ListSupplier = (allRequest, allSupplier, request) => {
+  return allSupplier.data.map(supplier => {
+    const selected = supplier.participantId === getResourceId(request.supplier);
+    const checkResult = allRequest.reduce((total, req) => 
+        getResourceId(req.supplier) === supplier.participantId 
+        && !_.includes(['CANCELED', 'REJECTED'], supplier.approvalStatus) ? total+1 : total, 0) ;
+    const checked = !selected && checkResult > 0 ? true : false;
     const result = {
-        id : 'new',
-        name: '',
-        title: '',
-        excerpt: '',
-        html: '',
-        status: config.default.productApprovalStatus,
-        rfp: config.default.productStatus,
-        createdOn: config.default.productCreatedOn,
-        slug: '',
-        editslug: '',
-        clickslug: '',
-        video: config.default.video,
-        supplier: listSupplier,
+        id: supplier.participantId,
+        name: supplier.name,
+        checked,
+        description: supplier.note,
+        selected,
     }
     return result;
-}
+  });
+};
 
 const ApiCustomerCampaignRequest = async (campaignId) => {
-    const allCampaign = await get('campaign', campaignId);
-    if (!allCampaign || !allCampaign.data)
+    const campaign = await get('campaign', campaignId);
+    if (!campaign || !campaign.data)
         return {};
-    const mainTitle = allCampaign.data.name;
+    const mainTitle = campaign.data.name;
     const allRequests = await get('campaignrequest');
     const allRequest = allRequests.data.filter(rq => getResourceId(rq.campaign) == campaignId);
     const allProduct = await get('product');
     const allSupplier = await get('supplier');
     const reqs = allRequest.filter(r => getResourceId(r.campaign) == campaignId).map(request => {
-        const listSupplier = allSupplier.data.map(supplier => {
-            const selected = supplier.participantId === getResourceId(request.supplier);
-            const checkResult = allRequest.reduce((total, req) => 
-                getResourceId(req.supplier) === supplier.participantId 
-                && !_.includes(['CANCELED', 'REJECTED'], supplier.approvalStatus) ? total+1 : total, 0) ;
-            const checked = !selected && checkResult > 0 ? true : false;
-            const result = {
-                id: supplier.participantId,
-                name: supplier.name,
-                checked,
-                description: supplier.note,
-                selected,
-            }
-            return result;
-        });
         const supplier = allSupplier.data.find(s => s.participantId == getResourceId(request.supplier));
         const product = allProduct.data.filter(p => 
             getResourceId(p.campaignRequest) == request.entityId);
@@ -83,12 +50,11 @@ const ApiCustomerCampaignRequest = async (campaignId) => {
             editslug,
             clickslug,
             video: (isProduct ? product[0].video : config.default.video),
-            supplier: listSupplier,
+            supplier: (isProduct ? product[0].supplier : undefined),
         }
         return result;
     });
-    const emptySublevelItem = await EmptySublevelItem(campaignId);
-    return { mainTitle, backslag: config.default.root, data: [emptySublevelItem, ...reqs], test: {one:'one', two: 'two', three: 'three'} };
+    return { mainTitle, backslag: config.default.root, allSupplier, data: reqs };
 }
 
-module.exports = { ApiCustomerCampaignRequest };
+module.exports = { ApiCustomerCampaignRequest, ListSupplier };
