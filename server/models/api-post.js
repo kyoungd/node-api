@@ -59,7 +59,7 @@ const baseEntity = {
   },
   "campaign": {
     "$class": "org.acme.smartdonation.object.Campaign",
-    "entityId": "",
+    "entityId": uuidv1(),
     "name": "",
     "description": " ",
     "amount": 0,
@@ -72,20 +72,41 @@ const baseEntity = {
   },
   "campaignrequest": {
     "$class": "org.acme.smartdonation.object.CampaignRequest",
-    "entityId": "",
+    "entityId": uuidv1(),
     "amount": 0,
-    "createdOn": "",
+    "createdOn": moment().format(),
     "description": " ",
     "name": "",
     "approvalStatus": "NOT_SUBMITTED",
     "approvalStatusReason": " ",
-    "respondedOn": "",
+    "respondedOn": moment().format(),
     "status": "NOT_STARTED",
     "campaign": "",
     "customer": "",
     "donation": "",
     "donor": "",
     "supplier": ""
+  },
+  "product" : {
+    "$class": "org.acme.smartdonation.object.Product",
+    "entityId": uuidv1(),
+    "approvalResponse": " ",
+    "approvalStatus": "NOT_SUBMITTED",
+    "createdOn": moment().format(),
+    "description": " ",
+    "excerpt": "",
+    "html": "",
+    "name": "",
+    "note": " ",
+    "status": "NOT_STARTED",
+    "submittedForApprovalOn": moment().format(),
+    "video": " ",
+    "campaign": '',
+    "campaignRequest": '',
+    "customer": '',
+    "donation": '',
+    "donor": '',
+    "supplier": ''
   }
 }
 

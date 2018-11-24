@@ -123,7 +123,7 @@ describe('Test basic functions', ()=> {
     console.log(result);
   })
 
-  it('should return a donation-product list ', async() => {
+  it.only('should return a donation-product list ', async() => {
     const donationId = entityId('donation', 1);
     const result = await ApiDonorPostList(donationId);
     console.log(result);
@@ -244,13 +244,87 @@ describe('Test basic functions', ()=> {
     console.log(result);
   });
 
-  it.only ('check campaignrequest new data test', async() => {
+  it ('check campaignrequest new data test', async() => {
     const campaignId = entityId('campaign', 1);
     const result = await ApiCustomerCampaignRequest(campaignId);
-    const supplier = ListSupplier(result.data, result.allSupplier, result.data[1]);
+    const supplier = ListSupplier(result.data, result.allSupplier, result.data[2]);
     expect(supplier[0].checked).to.equal(true);
     expect(supplier[1].selected).to.equal(true);
   })
+
+  it ('campaignrequest with live data - edit', async() => {
+    const data = {
+      $class: "org.acme.smartdonation.object.CampaignRequest",
+      amount: 1000000,
+      approvalStatus: "ACCEPTED",
+      approvalStatusReason: "OK",
+      campaign: "resource:org.acme.smartdonation.object.Campaign#a-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      createdOn: "2016-11-11T00:35:41.037Z",
+      customer: "resource:org.acme.smartdonation.participant.Customer#c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      description: "In the plastic container, which is around the same size as a small box of photocopier paper, she has bottles of tonic water, coffee and French marmalade. Away from the kitchen, in a cupboard she has stored extra bottles of shampoo.",
+      donation: "resource:org.acme.smartdonation.object.Donation#t-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      donor: "resource:org.acme.smartdonation.participant.Donor#d-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      entityId: "r-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      name: "Factual Ad",
+      respondedOn: "2018-11-10T19:05:41.130Z",
+      status: "ACCEPTED",
+      supplier: "resource:org.acme.smartdonation.participant.Supplier#s-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+    }
+    const result = await SetBlockchain('campaignrequest', data);
+    console.log(result);
+  })
+
+  it ('campaignrequest with live data - new', async() => {
+    const data = {
+      "id": "new",
+      "name": "Arthur D Dent",
+      "title": "",
+      "excerpt": "",
+      "html": "",
+      "status": "ACTIVE",
+      "rfp": "ACTIVE",
+      "slug": "",
+      "editslug": "",
+      "clickslug": "",
+      "supplier": "s-6ee91abf-d094-49e1-9385-d3cbd84b54a907",
+      "description": "take a look",
+      "customer": "resource:org.acme.smartdonation.participant.Customer#c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "campaign": "a-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      "donor": "resource:org.acme.smartdonation.participant.Donor#d-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      "donation": "resource:org.acme.smartdonation.object.Donation#t-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      "entityId": "new",
+      "approvalStatus": "NOT_SUBMITTED"
+    }
+    const result = await SetBlockchain('campaignrequest', data);
+    console.log(result);
+  })
+ 
+  it.only('should get supplier rfps', async()=> {
+    const supplierId = entityId('supplier', 3);
+    const result = await ApiSupplierRfpList(supplierId);
+    console.log(result);
+  });
+
+  it('should set edit product data', async() => {
+    const data = {
+      campaign: "r-6ee91abf-d094-49e1-9385-d3cbd84b54a903",
+      campaignRequest: "r-6ee91abf-d094-49e1-9385-d3cbd84b54a903",
+      createdOn: "2016-11-11T00:35:41.037Z",
+      customer: "resource:org.acme.smartdonation.participant.Customer#c-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      donation: "resource:org.acme.smartdonation.object.Donation#t-6ee91abf-d094-49e1-9385-d3cbd84b54a901",
+      donor: "resource:org.acme.smartdonation.participant.Donor#d-6ee91abf-d094-49e1-9385-d3cbd84b54a9",
+      entityId: "r-6ee91abf-d094-49e1-9385-d3cbd84b54a903",
+      excerpt: "Heading 1 Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern…",
+      html: '<p>Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark. "Fix, Schwyz! " quäkt Jürgen blöd vom Paß. Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. Heizölrückstoßabdämpfung. Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim.</p>↵<p>Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark. "Fix, Schwyz! " quäkt Jürgen blöd vom Paß. Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. Heizölrückstoßabdämpfung. Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark. "Fix, Schwyz! " quäkt Jürgen blöd vom Paß. Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich.</p>↵<h2 id="zwei-flinke-boxer"><a href="#zwei-flinke-boxer" aria-hidden class="anchor"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Zwei flinke Boxer</h2>↵<p>Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. Heizölrückstoßabdämpfung. Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark.</p>↵<blockquote>↵<p>"Fix, Schwyz! " quäkt Jürgen blöd vom Paß. Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. Heizölrückstoßabdämpfung. Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern.</p>↵</blockquote>↵<p>Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark. "Fix, Schwyz! " quäkt Jürgen blöd vom Paß. Victor jagt zwölf Boxkämpfer quer über den großen Sylter Deich. Falsches Üben von Xylophonmusik quält jeden größeren Zwerg. Heizölrückstoßabdämpfung. Zwei flinke Boxer jagen die quirlige Eva und ihren Mops durch Sylt. Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. Vogel Quax zwickt Johnys Pferd Bim. Sylvia wagt quick den Jux bei Pforzheim. Polyfon zwitschernd aßen Mäxchens Vögel Rüben, Joghurt und Quark. "Fix, Schwyz! " quäkt Jürgen blöd vom Paß.</p>',
+      name: "Waffle",
+      status: "COMPLETE",
+      supplier: "s-6ee91abf-d094-49e1-9385-d3cbd84b54a903",
+      video: "<iframe width='560' height='315' allowfullscreen style='margin-bottom:0' src='https://www.youtube.com/embed/N6dlPK4z-8U?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;color=39a3bd' data-fit='yes' frameborder='0' id='fitvid53925'></iframe>",
+    }
+    const result = await SetBlockchain('product', data);
+    console.log(result);
+  });
+
 })
 
 describe.skip('Test donations', ()=> {
@@ -304,12 +378,6 @@ describe.skip('Test donations', ()=> {
     const campaignId = entityId('campaign', 1);
     const result = await ApiCampaignSupplier(campaignId);
     expect(result[0].checked).to.equal(false);
-  });
-
-  it('should get supplier rfps', async()=> {
-    const supplierId = entityId('supplier', 3);
-    const result = await ApiSupplierRfpList(supplierId);
-    console.log(result);
   });
 
   it('test approval Status', done => {

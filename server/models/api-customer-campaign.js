@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { get, post, getResourceId } = require('./api');
 const config = require('./config');
 
-const ApiCampaignBlank = (customerId, idCode) => ({
+const ApiCampaignBlank = (customerId, id) => ({
   id,
   title: '',
   description: '',
@@ -17,7 +17,7 @@ const ApiCampaignBlank = (customerId, idCode) => ({
   waiting: '',
   slug: '',
   editslug: '',
-  clickslug: '',
+  clickslug: '/root-sublevel?campaignId',
   donation: 'new',
   customer: customerId,
 });
