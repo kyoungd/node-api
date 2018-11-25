@@ -3,8 +3,8 @@ const expect = require('chai').expect;
 const request = require('supertest');
 
 const { app } = require('../server/index');
-const { entityId, entityPrefix } = require('../server/models/setup-helper');
-const { get, remove } = require('../server/models/api');
+const { entityId, entityPrefix, refModel } = require('../server/models/setup-helper');
+const { get, post, remove } = require('../server/models/api');
 const { getDashboardDonorPost } = require('../server/models/api-data');
 const { ApiCampaignList } = require('../server/models/api-customer-campaign');
 const { ApiCustomerCampaignRequest, ListSupplier } = require('../server/models/api-customer-campaignrequest');
@@ -15,10 +15,85 @@ const { ApiSupplierRfpList } = require('../server/models/api-supplier-rfp');
 const { EntityStateDdl, ApprovalStateDonorDdl } = require('../server/models/api-data-status');
 const { SetBlockchain, RunOpCode } = require('../server/models/api-post');
 const { ApiDonorPostList } = require('../server/models/api-donor-postlist');
+const politicalads = require('../server/politicalads');
 
 const _ = require('lodash');
 
 describe('Test basic functions', ()=> {
+
+  it.only('8th product insert test', async()=> {
+
+    try {
+      for (let ix = 8; ix <= 8; ++ix) {
+          let item =
+          {
+              "$class": "org.acme.smartdonation.object.Product",
+              "entityId": entityId('product', ix),
+              "approvalResponse": "OK",
+              "approvalStatus": "ACCEPTED",
+              "createdOn": "2016-11-11T00:35:41.037Z",
+              "description": "This is a factual ad only",
+              "excerpt": "string",
+              "html": "string",
+              "name": "string",
+              "note": "It went pretty well.  No surprises.",
+              "status": "COMPLETE",
+              "submittedForApprovalOn": "2018-11-11T00:35:41.037Z",
+              "video": "string",
+              "campaign": refModel('campaign', 1),
+              "campaignRequest": refModel('campaignrequest', ix),
+              "customer": refModel('customer'),
+              "donation": refModel('donation', 1),
+              "donor": refModel('donor'),
+              "supplier": refModel('supplier', ix)
+          }
+          item = {...item, ...politicalads[ix-1]}
+          switch(ix) {
+              case 1:
+              case 2:
+              case 3:
+              case 4:
+                break;
+              case 5:
+                  item.createdOn = "2018-11-12T19:05:41.130Z",
+                  item.campaign = refModel('campaign', 2);
+                  item.donation = refModel('donation', 2);
+                  item.approvalStatus = "REJECTED";
+                  item.approvalResponse = "The ad is too negative and a bit racist",
+                  item.status = "COMPLETE";
+                  break;
+              case 6:
+                  item.createdOn = "2018-11-13T19:05:41.130Z",
+                  item.campaign = refModel('campaign', 2);
+                  item.donation = refModel('donation', 2);
+                  item.approvalStatus = "REJECTED";
+                  item.approvalResponse = "The ad is too irrelevant and stretching",
+                  item.status = "COMPLETE";
+                  break;
+              case 7:
+                  cr2.createdOn = "2018-11-16T19:05:41.130Z",
+                  item.campaign = refModel('campaign', 2);
+                  item.donation = refModel('donation', 2);
+                  item.approvalStatus = "ACCEPTED";
+                  item.approvalResponse = "OK",
+                  item.status = "COMPLETE";
+                  break;
+              case 8:
+                  item.createdOn = "2018-11-20T19:05:41.130Z",
+                  item.campaign = refModel('campaign', 2);
+                  item.donation = refModel('donation', 2);
+                  item.approvalStatus = "SUBMITTED";
+                  item.approvalResponse = " ",
+                  item.status = "COMPLETE";
+                  break;
+          }
+          const result = await post('product', item);
+          console.log(result);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  })
 
   it('test object', (done)=> {
     var o1 = { food: 'pizza', car: 'ford', rules: ['low maintenance', 'high mileage', 'nice exterier'], engine: {size: '4 cylinder', fan: 'electric'} };
@@ -299,7 +374,7 @@ describe('Test basic functions', ()=> {
     console.log(result);
   })
  
-  it.only('should get supplier rfps', async()=> {
+  it('should get supplier rfps', async()=> {
     const supplierId = entityId('supplier', 3);
     const result = await ApiSupplierRfpList(supplierId);
     console.log(result);

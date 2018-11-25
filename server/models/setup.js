@@ -108,15 +108,15 @@ const donation = async () => {
     const donation1 = {
         "$class": "org.acme.smartdonation.object.Donation",
         "entityId": entityId('t', 1),
-        "name": "Factual ads only",
-        "description": "Proposing to restore the state’s commitment to fund two-thirds of public school costs, matching a plan by his Democratic opponent, State Superintendent Tony Evers.",
+        "name": "2016 Senate Race",
+        "description": "I want the campaign to focus on facts",
         "rules": ['factual advertisements', 'focus on the candidate', 'candidates accomplishments'],
-        "note": "More than 250,000 people have been forced to flee their homes to avoid three major blazes in the state. Firefighters were powerless in stopping a wildfire destroying the northern town of Paradise, where nine people died and 35 are missing. A raging wildfire swept into the southern beach resort of Malibu - home to many Hollywood stars - on Friday.",
-        "donateOn": "2016-11-10T19:05:41.190Z",
+        "note": " ",
+        "donateOn": "2015-11-10T19:05:41.190Z",
         "amount": 4000000,
-        "availableOn": "2016-11-10T19:05:41.190Z",
+        "availableOn": "2015-11-10T19:05:41.190Z",
         "expireOn": "2018-11-10T19:05:41.190Z",
-        "status": "ACTIVE",
+        "status": "COMPLETE",
         "isExpired": "true",
         "isDonationLeft": "false",
         "isDonationSuccess": "true",
@@ -131,10 +131,10 @@ const donation = async () => {
     const donation2 = {
         "$class": "org.acme.smartdonation.object.Donation",
         "entityId": entityId('t', 2),
-        "name": "Humours and postive ads only for senate and governor",
-        "description": "Gov. Scott Walker is proposing to restore the state’s commitment to fund two-thirds of public school costs, matching a plan by his Democratic opponent, State Superintendent Tony Evers.",
+        "name": "2018 Governor and Senate race",
+        "description": "I want to support campaign that is factual, but positive",
         "rules": ['postive ads only', 'it must represent light site of the candidate', 'focus on the candidate', 'candidates accomplishments'],
-        "note": "Authorities say the Camp Fire in the north and the Woolsey Fire and Hill Fire in the south are being fanned by strong winds and dry forests. By Saturday, the Woolsey Fire had doubled in size, officials said. The magnitude of the destruction of the fire is unbelievable and heartbreaking, said Mark Ghilarducci, of the California governor's office.",
+        "note": " ",
         "donateOn": "2018-11-10T19:05:41.190Z",
         "amount": 5000000,
         "availableOn": "2018-11-10T19:05:41.190Z",
@@ -157,8 +157,8 @@ const campaign = async () => {
     const c1 = {
         "$class": "org.acme.smartdonation.object.Campaign",
         "entityId": entityId('campaign', 1),
-        "name": "Campaign Factual.",
-        "description": "Campaign that only highlights facts",
+        "name": "2016 Governor Race",
+        "description": "Campaign that highlights facts",
         "amount": 4000000,
         "status": "COMPLETE",
         "createdOn": "2016-11-10T19:05:41.084Z",
@@ -171,8 +171,8 @@ const campaign = async () => {
     const c2 = {
         "$class": "org.acme.smartdonation.object.Campaign",
         "entityId": entityId('campaign', 2),
-        "name": "Positive and humours ads.",
-        "description": "Campaign that only focus on positives",
+        "name": "2018 Senate and Governor.",
+        "description": "No negative ads",
         "amount": 5000000,
         "status": "ACTIVE",
         "createdOn": "2018-10-10T19:05:41.084Z",
@@ -257,7 +257,7 @@ const campaignrequest = async() => {
             break;
           case 4:
             cr2.createdOn = "2018-11-19T19:05:41.130Z",
-            cr2.description = "Demonstrate his indendance from outside influence";
+            cr2.description = "Demonstrate his independance from influencers";
             cr2.name = "David Trone, a liquor store chain tycoon";
             break;
         }
@@ -282,13 +282,15 @@ const product = async () => {
             "status": "COMPLETE",
             "submittedForApprovalOn": "2018-11-11T00:35:41.037Z",
             "video": "string",
-            "campaign": refModel('campaign', 1),
-            "campaignRequest": refModel('campaignrequest', ix),
-            "customer": refModel('customer'),
-            "donation": refModel('donation', 1),
-            "donor": refModel('donor'),
-            "supplier": refModel('supplier', ix)
         }
+        const cr = await get('campaignrequest', entityId('campaignrequest', ix));
+        item.customer = cr.data.customer;
+        item.campaign = cr.data.campaign;
+        item.campaignRequest = `resource:org.acme.smartdonation.object.CampaignRequest#${cr.data.entityId}`;
+        item.donor = cr.data.donor;
+        item.donation = cr.data.donation;
+        item.supplier = cr.data.supplier;
+
         item = {...item, ...politicalads[ix-1]}
         switch(ix) {
             case 1:
@@ -297,6 +299,7 @@ const product = async () => {
             case 4:
               break;
             case 5:
+                item.createdOn = "2018-11-12T19:05:41.130Z",
                 item.campaign = refModel('campaign', 2);
                 item.donation = refModel('donation', 2);
                 item.approvalStatus = "REJECTED";
@@ -304,6 +307,7 @@ const product = async () => {
                 item.status = "COMPLETE";
                 break;
             case 6:
+                item.createdOn = "2018-11-13T19:05:41.130Z",
                 item.campaign = refModel('campaign', 2);
                 item.donation = refModel('donation', 2);
                 item.approvalStatus = "REJECTED";
@@ -311,6 +315,7 @@ const product = async () => {
                 item.status = "COMPLETE";
                 break;
             case 7:
+                item.createdOn = "2018-11-16T19:05:41.130Z",
                 item.campaign = refModel('campaign', 2);
                 item.donation = refModel('donation', 2);
                 item.approvalStatus = "ACCEPTED";
@@ -318,9 +323,10 @@ const product = async () => {
                 item.status = "COMPLETE";
                 break;
             case 8:
+                item.createdOn = "2018-11-20T19:05:41.130Z",
                 item.campaign = refModel('campaign', 2);
                 item.donation = refModel('donation', 2);
-                item.approvalStatus = "SUBMIITED";
+                item.approvalStatus = "SUBMITTED";
                 item.approvalResponse = " ",
                 item.status = "COMPLETE";
                 break;
